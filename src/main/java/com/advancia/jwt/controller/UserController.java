@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.advancia.jwt.model.User;
 import com.advancia.jwt.repository.UserRepository;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api")
 public class UserController {

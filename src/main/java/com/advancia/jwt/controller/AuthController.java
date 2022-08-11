@@ -2,10 +2,8 @@ package com.advancia.jwt.controller;
 
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,7 +25,7 @@ import com.advancia.jwt.repository.UserRepository;
 import com.advancia.jwt.security.jwt.JwtUtils;
 import com.advancia.jwt.security.service.UserDetailsServiceImpl;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -53,8 +51,7 @@ public class AuthController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
 		final String token = jwtUtils.generateTokenFromUsername(userDetails.getUsername());
-		return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).body(
-				new MessageResponse(userDetails.getUsername() + " User Logged"));
+		return ResponseEntity.ok(new MessageResponse(token));
 	}
 
 	@PostMapping("/register")
@@ -71,7 +68,6 @@ public class AuthController {
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
 	
-	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/istokenexpired/{token}")
 	public ResponseEntity<Boolean> isTokenExpired(@PathVariable("token") String token) {
 		try {
