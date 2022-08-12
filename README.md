@@ -1,4 +1,4 @@
-#Login Syste, Spring Security, JWT, Angular.
+# Login System, Spring Security, JWT, Angular.
 
 example simple login using Spring Security, Jwt Angular.
 
