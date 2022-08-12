@@ -43,29 +43,35 @@ public class AuthController {
 
 	@Autowired
 	JwtUtils jwtUtils;
+	
 
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+		try {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
+		User user = userRepository.findByUsernameAndPassword(userDetails.getUsername(), userDetails.getPassword()).get();
 		final String token = jwtUtils.generateTokenFromUsername(userDetails.getUsername());
-		return ResponseEntity.ok(new MessageResponse(token));
+		return ResponseEntity.ok(new MessageResponse(token, true, user));
+		} catch (Exception e) {
+			return ResponseEntity.ok(new MessageResponse("User or password not correct", false, null));
+		}
 	}
 
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+			return ResponseEntity.ok(new MessageResponse("Error: Username is already taken!", false, null));
 		}
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+			return ResponseEntity.ok(new MessageResponse("Error: Email is already in use!", false, null));
 		}
 		User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
 				encoder.encode(signUpRequest.getPassword()));
 		userRepository.save(user);
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+		return ResponseEntity.ok(new MessageResponse("User registered successfully!", true, user));
 	}
 	
 	@GetMapping("/istokenexpired/{token}")

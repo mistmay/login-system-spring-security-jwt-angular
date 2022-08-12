@@ -1,14 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { LoginService } from 'src/app/services/login.service';
 
 @Component({
   selector: 'app-login',
   template: `
    <section class="p-5">
-    <div class="container p-5 bg-white rounded border border-secondary">
+    <div class="container p-5 bg-white rounded border border-secondary d-flex flex-column align-items-center gap-3">
       <form class="d-flex flex-column align-items-center gap-3 w-100 p-5 border border-secondary rounded" [formGroup]="form" (ngSubmit)="login()">
         <h3 class="fw-bold">Log-in</h3>
         <mat-form-field class="w-100" appearance="fill">
@@ -25,16 +23,17 @@ import { LoginService } from 'src/app/services/login.service';
         </mat-form-field>
         <button mat-raised-button color="primary" class="w-100" type="submit" [disabled]="form.invalid">Log-In</button>
       </form>
+      <a class="text-center fw-bold" routerLink="/home/register">Register Page</a>
     </div>
    </section>
   `,
   styles: [
   ]
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   form!: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router, private loginService: LoginService) { }
+  constructor(private fb: FormBuilder, private loginService: LoginService) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -43,8 +42,13 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.form.reset();
+  }
+
   login(): void {
     this.loginService.login({ ...this.form.value });
+    this.form.reset();
   }
 
 }
